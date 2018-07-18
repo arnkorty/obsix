@@ -1,20 +1,27 @@
-import {PREFIX, DEFAULT_ACTION} from './constant';
-export const observeAttr = (event: any, cb: any, args: any) => {
+import {ENTRY_KEY, DEFAULT_ACTION} from './constant';
+import Entry from './entry';
+
+export const decoratorProperty = (event: any, cb: any, args: any) => {
   const [obj, attr, ...other] = args
 
-  const newAttr = `${PREFIX}${attr}`
+  const originVal = obj[attr]
+
+  if (!obj[ENTRY_KEY]) {
+    obj[ENTRY_KEY] = new Entry()
+  }
+  obj[ENTRY_KEY][attr] = originVal
+  
   const eventType = [obj, attr]
   if (cb) {
     event.on(eventType, cb)
   }
-  const properties:any = {}
-
-  properties[attr] = {
+ 
+  Object.defineProperty(obj, attr, {
     get() {
-      return this[newAttr]
+      return this[ENTRY_KEY][attr]
     },
     set(val:any) {
-      this[newAttr] = val
+      this[ENTRY_KEY][attr] = val
       const payload = {
         value: val,
         object: this,
@@ -25,16 +32,10 @@ export const observeAttr = (event: any, cb: any, args: any) => {
       }
       event.emit(DEFAULT_ACTION, payload)
     }
-  }
-  properties[`${PREFIX}${attr}`] = {
-    value: obj[attr],
-    writable: true
-  }
-
-  Object.defineProperties(obj, properties)
+  })
 
 }
 
-export const observeObject = (event, cb, args) => {
+export const decoratorObject = (event, cb, args) => {
 
 }

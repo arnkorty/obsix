@@ -1,6 +1,6 @@
 import Event from './event';
 import { DEFAULT_ACTION } from './constant'
-import { observeAttr, observeObject } from './decorator'
+import { decoratorProperty, decoratorObject } from './decorator'
 
 export default class Create {
   event = new Event()
@@ -13,24 +13,13 @@ export default class Create {
     });
   }
 
-  // observeObject(){
-
-  // }
-
-  // observeAttr(cb, args){
-
-  //   return observeAttr(this.event, cb, args)
-  // }
-
   observe = (cb: any = null) => {
     const event = this.event
-    console.log('event', event)
-    return function(target, propertyKey, descriptor) {
+    return function(target, propertyKey?:string, descriptor?:PropertyDescriptor) {
       if(propertyKey) {
-        console.log(propertyKey)
-        return observeAttr(event, cb, [target, propertyKey])
+        return decoratorProperty(event, cb, [target, propertyKey])
       } else {
-        return observeObject(event, cb, [target])
+        return decoratorObject(event, cb, [target])
       }
     }
   }
